@@ -8,7 +8,7 @@ mkdir(output_path);
 img = cell(height(inputfiles),1);
 id = cell(height(inputfiles),2);
 parfor j = 1:height(inputfiles)
-    %img{j} = imread([input_path '\' inputfiles(j).name]);
+    img{j} = imread([input_path '\' inputfiles(j).name]);
     tmp = strsplit(inputfiles(j).name,'_');
     id{j,1} = tmp{4};
 end

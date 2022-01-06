@@ -6,18 +6,15 @@
 % n = well position
 % worm_img_path is the output directory
 function [score] = scoreCS(img,id)
-
 close all
 n = id{:,1};
-img = img;
-
 i = 1;
 figure(1)
 
 imageHandle = imshow(img{i});
-
+xlabel('1 = empty, 2 = wt, 3 = hit, 4 = dead, 5 = other, x = save, left & right = back & fwd');
 colormap gray
-t = title(['well_' id{i,1}]);
+t = title(['well ' id{i,1}]);
 axesHandle = get(imageHandle,'parent');
 figHandle = get(axesHandle,'parent');
 set(figHandle,'WindowKeyPressFcn',@nextImage);
@@ -28,124 +25,71 @@ uiwait
     function changeImage
         imageHandle(1).CData=img{i,1};
         colormap gray
-        t = title(['well_' id{i,1}]);
+        t = title(['well ' id{i,1}]);
     end
 
     function nextImage(~, eventdata, ~)
         switch eventdata.Key
             case 'leftarrow'
                 i = max(1,i-1);
-                imageHandle(1).CData=img{n,1}{i,1};
-                set(t,'String',['well_' num2str(n) ' img_' num2str(i)])
+                changeImage
+%                 imageHandle(1).CData=img{i,1};
+%                 set(t,'String',['well ' num2str(n)])
             case 'rightarrow'
-                i = min(i+1,size(img{n,1},1));
-                if i+1>size(img{n,1},1)
-                    if ~isempty(lengths)
-                    worm_lengths{n} = lengths;
-                    end
-                    i = size(img{n,1},1);              
-%                     n = min(n+1,nWells);
-%                     if n > length(nWells)
-%                         n = length(nWells)
-%                     end
-%                     lengths = worm_lengths{n};
+                i = min(i+1,size(img,1));
+                if i+1>size(img,1)
+                    i = size(img,1);
+                    %n = min(n+1,nWells);
+                    %if n > length(nWells)
+                    %    n = length(nWells)
+                    %end
+                    %lengths = worm_lengths{n};
                 end
                 changeImage
-                set(t,'String',['well_' num2str(n) ' img_' num2str(i)])
-            case 'downarrow'
-                if ~isempty(lengths)
-                    worm_lengths{n} = lengths
-                end
-                i = 1;
-                n = min(n+1,nWells);
-                lengths = worm_lengths{n};
-                changeImage
-            case 'uparrow'
-                n = max(n-1,1);
-                changeImage               
+%                 set(t,'String',['well ' num2str(n)])     
                 
-            case 'w'
-                if length(lengths)>1
-                    lengths = lengths(1:end-1);
-                else
-                    lengths = [];
-                end
-                               
-                clc
-                disp(lengths)
+            case '1' % empty
+                id{i,2} = 1;
+                score = id;
+                disp([id{i,1} ' = empty (' num2str(id{i,2}) ')'])
+                i = min(i+1,size(img,1));
+                changeImage
+            case '2'
+                id{i,2} = 2;
+                score = id;
+                disp([id{i,1} ' = wt (' num2str(id{i,2}) ')'])
+                i = min(i+1,size(img,1));
+                changeImage
+            case '3'
+                id{i,2} = 3;
+                score = id;
+                disp([id{i,1} ' = hit (' num2str(id{i,2}) ')'])
+                i = min(i+1,size(img,1));
+                changeImage
+            case '4'
+                id{i,2} = 4;
+                score = id;
+                disp([id{i,1} ' = dead (' num2str(id{i,2}) ')'])
+                i = min(i+1,size(img,1));
+                changeImage
+            case '5'
+                id{i,2} = 5;
+                score = id;
+                disp([id{i,1} ' = other (' num2str(id{i,2}) ')'])
+                i = min(i+1,size(img,1));
+                changeImage
             case 'x'
-                worm_lengths{n} = lengths;
+                score = id;
+                tscore = cell2table(score);
+                tscore.Properties.VariableNames{2} = '1 = empty, 2 = wt, 3 = hit, 4 = dead, 5 = other';
+                outputfolder = uigetdir();
+                if outputfolder ~= 0
+                    outputname = char(datetime('now'), 'yyyyMMddHHmm');
+                    writetable(tscore,[outputfolder '\' outputname '.xlsx']);
+                end
                 uiresume
                 delete(figHandle(1))
                 close all
         end
     end
-
-    function butn_fcn(hObj,~)
-        if strcmp(get(figHandle(1),'SelectionType'),'normal')
-            axesHandle = get(hObj,'Parent');
-            hChildren = findobj(axesHandle,'Type','Rectangle');
-            delete(hChildren);
-            coordinates = get(axesHandle,'CurrentPoint');
-            coordinates = coordinates(1,1:2);
-            s = 50;
-            sub_img = uint8(zeros(2*s,2*s));
-            bounding_box = [coordinates-s 2*s 2*s];
-            rectangle('pos',bounding_box,'edgecolor','r');
-            tmp_img = imcrop(hObj.CData,bounding_box);
-            sub_img(1:size(tmp_img,1),1:size(tmp_img,2)) = tmp_img;
-            figHandle(2) = figure(2);
-            I = imcomplement(sub_img);
-            I2 = imtophat(I,strel('disk',20));
-            I3 = imadjust(I2,[0.05 0.95]);
-            bw = imbinarize(I3);
-            bw = imfill(bw,'holes');
-            bw = bwareaopen(bw,250);
-            cc = bwconncomp(bw,8);
-            imageHandle(2) = imshow(bw);
-            axesHandle(2) = get(imageHandle(2),'Parent');
-            length_tmp = worm_length(regionprops(cc,'Centroid','Area','Image','BoundingBox'))*3.25;
-            set(figHandle(2),'WindowKeyPressFcn',{@acceptImage});
-       end
-
-%         if strcmp(get(figHandle(1),'SelectionType'),'alt')
-%             axesHandle = get(hObj,'Parent');
-%             hChildren = findobj(axesHandle,'Type','Rectangle');
-%             delete(hChildren);
-%             coordinates = get(axesHandle,'CurrentPoint');
-%             coordinates = coordinates(1,1:2);
-%             
-%             s = 12;
-%             bounding_box = [coordinates-2*s 2*s 2*s];
-%             rectangle(fgr3.CurrentAxes,'pos',bounding_box,'edgecolor','r');
-%         end
-    end
-
-    function acceptImage(~, eventdata, ~)
-        switch eventdata.Key
-            case 'return'
-                imwrite(sub_img,[worm_img_path, '\' datestr(now, 'ddmmyyHHMMss'), '.png']);
-                lengths = cat(1,lengths,sort(length_tmp,'descend'));
-                clc
-                disp(lengths)
-                close(figHandle(2))
-                
-                if ~isempty(lengths)
-                    worm_lengths{n} = lengths;
-                end
-                
-                n = min(n+1,nWells);
-                if n > nWells
-                    n = nWells
-                end             
-                lengths = worm_lengths{n};
-                
-                i = 1;
-                changeImage
-                set(t,'String',['well_' num2str(n) ' img_' num2str(i)])
-            case 'w'
-                close(figHandle(2))
-        end
-    end
-
 end
