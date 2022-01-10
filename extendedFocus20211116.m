@@ -4,7 +4,7 @@ addpath(genpath('D:\userdata\braufabi\Fiji.app\scripts'));
 Miji
 % close Miji windows
 %%
-pathinput = 'W:\scratch\gtsiairi\fabian\yokogawaCV7000\211111FB02_20211111_143458\211111FB002R02_211111_143533\';
+pathinput = '\\tungsten-nas.fmi.ch\tungsten\scratch\gtsiairi\fabian\yokogawaCV7000\220106FB003R03_20220106_133412\220106FB003R03_220106_133457\';
 sufix = '**\*Z01C01.tif';
 inputfiles = dir([pathinput '\' sufix]);
 

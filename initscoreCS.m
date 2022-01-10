@@ -1,6 +1,6 @@
 clear all
 %input_path = uigetdir;
-input_path = '\\tungsten-nas.fmi.ch\tungsten\scratch\gtsiairi\fabian\yokogawaCV7000\211014-jf28-8600075508_20211014_151253\211014FB001R01_211014_151425\extendedFocus';
+input_path = '\\tungsten-nas.fmi.ch\tungsten\scratch\gtsiairi\fabian\yokogawaCV7000\220106FB003R03_20220106_133412\220106FB003R03_220106_133457\extendedFocus';
 inputfiles = dir([input_path '\*.png']);
 output_path = [input_path '\output\'];
 mkdir(output_path);
