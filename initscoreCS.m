@@ -1,4 +1,6 @@
 clear all
+% add scripts to MATLAB path
+addpath 'D:\userdata\braufabi\fbcs'
 %input_path = uigetdir;
 input_path = '\\tungsten-nas.fmi.ch\tungsten\scratch\gtsiairi\fabian\yokogawaCV7000\220106FB003R03_20220106_133412\220106FB003R03_220106_133457\extendedFocus';
 inputfiles = dir([input_path '\*.png']);
